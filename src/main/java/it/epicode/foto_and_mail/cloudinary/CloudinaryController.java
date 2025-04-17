@@ -1,6 +1,8 @@
 package it.epicode.foto_and_mail.cloudinary;
 
 import com.cloudinary.Cloudinary;
+import it.epicode.foto_and_mail.email.EmailSenderService;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +19,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class CloudinaryController {
     private final Cloudinary cloudinary;
+    private final EmailSenderService emailSenderService;
 
     @PostMapping(path="/uploadme", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public void upload(
@@ -33,9 +36,15 @@ public class CloudinaryController {
             // che può essere memorizzata in un database
             String url = result.get("secure_url").toString();
 
+            emailSenderService.sendEmail("jackoat2001@gmail.com",
+                    "Immagine caricata",
+                    "<h3>L'immagine è stata caricata con successo</h3>" +
+                            "<br>" +
+                            "<img src='" + url + "' />");
+
             System.out.println(url);
 
-        } catch (IOException e) {
+        } catch (IOException  | MessagingException e) {
             throw new RuntimeException(e);
         }
 
